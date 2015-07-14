@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+opt = ARGV.getopts('n:', 'pretty')
+num = opt['n'].to_i.nonzero? ? opt['n'].to_i : 5
+sti = ARGF.read.split("\n")
+
+puts sti.first(num)
+puts ":\n:\n:" if opt['pretty']
+puts sti.last(num)

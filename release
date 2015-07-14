@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+
+require 'json'
+require 'open-uri'
+require 'optparse'
+require 'time'
+
+me = File.basename(__FILE__)
+
+option = ARGV.getopts('h', 'help')
+if option['h'] || option['help']
+  puts "#{me}: [Username] [Repository]"
+  exit
+end
+
+exit 1 if ARGV[1].nil?
+user = ARGV[0]
+repo = ARGV[1]
+
+token = ENV['GITHUB_API_TOKEN']
+url = "https://api.github.com/repos/#{user}/#{repo}/releases"
+
+begin
+  unless token.nil?
+    res = open(url, "Authorization" => "token #{token}")
+  else
+    res = open(url)
+  end
+rescue => err
+  STDERR.puts "#{me}: #{err.message}"
+  exit 1
+end
+
+json = JSON.parse(res.read)
+if json.size.zero?
+  STDERR.puts "#{me}: No releases"
+  exit
+end
+
+json.each_with_index {|a, c|
+  puts "Date\tTag\tURL" if c.zero?
+  puts "#{Time.parse(a['created_at'])}\t#{a['tag_name']}\t#{a['tarball_url']}"
+}

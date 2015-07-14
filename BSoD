@@ -1,0 +1,56 @@
+#!/usr/bin/env ruby
+#
+# original: kernel_panic by sasairc
+# license:  WTFPL
+#
+
+class String
+  def mb_center(width, padding=' ')
+    output_width = self.gsub(/\e\[(?:\d{1,3}[;m])*/, '').each_char.map {|c| c.bytesize == 1 ? 1 : 2 }.inject(:+)
+    padding_size = (width - output_width) / 2
+    output = (padding * padding_size) + self + (padding * padding_size)
+
+    (padding_size) * 2 + output_width == width ? output : output += ' '
+  end
+end
+
+system('tput clear')
+
+begin
+  system('tput civis')
+  print "\e[37;44m"
+    string = <<-"EOS"
+                                                                                    
+                                                                                    
+                                      \e[34;47m Windows \e[37;44m                                     
+                                                                                    
+         例外 0E が 0028:13896A で発生しました。                                    
+         現在のアプリケーションを終了します。                                       
+                                                                                    
+         * どれかキーを押すと、現在のアプリケーションは強制終了されます。           
+         * Ctrl + Alt + Del キーをもう一度押すと、コンピュータが再起動します。      
+         * アプリケーションで保存していないデータはすべて失われます。               
+                                                                                    
+                          どれかキーを押すと、続行します.                           
+                                                                                    
+                                                                                    
+                                                                                    
+    EOS
+
+    output_lines = string.split("\n").size
+    padding_size = (`tput lines`.to_i - output_lines) / 2
+
+    output = (" \n" * padding_size) + string + (" \n" * padding_size)
+    output += " \n" unless (padding_size * 2) + output_lines == `tput lines`.to_i
+
+    output.each_line {|line|
+      print line.chomp.mb_center(`tput cols`.to_i)
+    }
+  print "\e[0m"
+
+  system('tput cup 0 0')
+  sleep 10000000
+rescue Interrupt
+  system('tput cnorm')
+  exit 1
+end

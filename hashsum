@@ -1,0 +1,67 @@
+#!/usr/bin/env ruby
+
+require 'tmpdir'
+require 'open-uri'
+require 'digest'
+require 'pathname'
+
+module HashSum
+  def self.define_component(name)
+    define_method(name) do |file: nil, url: nil, str:nil|
+      case
+      when file
+        return eval("Digest::#{name}.file(File.expand_path(file)).to_s")
+
+      when url
+        Dir.mktmpdir do |tmpdir|
+          download_path = Pathname(tmpdir) + File.basename(url)
+          open(download_path, 'wb') do |file|
+            open(url) {|data| file.write(data.read) }
+          end
+          return eval("Digest::#{name}.file(download_path).to_s")
+        end
+
+      when str
+        return eval("Digest::#{name}.hexdigest(str)")
+
+      end
+    end
+  end
+
+  def method_missing(name, *args)
+      eval("Digest::Base >= Digest::#{name}")
+    rescue LoadError, NoMethodError, SyntaxError
+      super
+    else
+      define_component(name)
+      send(name, args[0])
+  end
+
+  def respond_to?(method)
+      eval("Digest::Base >= Digest::#{method}")
+    rescue LoadError, NoMethodError, SyntaxError
+      super
+  end
+
+  extend self
+end
+
+if __FILE__ == $PROGRAM_NAME
+  require 'optparse'
+
+  options = {}
+  OptionParser.new do |opt|
+    HashSum.tap {|o| o.send(:define_component, :SHA256) }.method(:SHA256).parameters.flatten.reject {|v| v.eql?(:key) }.each do |args|
+      opt.on("--#{args.to_s}=VALUE") {|v| options[args] = v }
+    end
+    opt.on("--type=VALUE") {|v| options[:type] = v.upcase }
+    opt.parse!(ARGV)
+  end
+
+  if options.reject {|k, _| k.eql?(:type) }.values.all?(&:nil?)
+    STDERR.puts "#{File.basename(__FILE__)}: require option\nTry --help for help"
+    exit 1
+  end
+
+  puts HashSum.send(options[:type] || :SHA256, options.reject {|k, v| k.eql?(:type) || v.nil? })
+end
