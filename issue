@@ -1,0 +1,91 @@
+#!/usr/bin/env ruby
+
+require 'json'
+require 'net/http'
+require 'open-uri'
+require 'openssl'
+require 'time'
+
+class Issues
+  def initialize(user, repo)
+    @user  = user
+    @repo  = repo
+    @token = ENV['GITHUB_API_TOKEN']
+    @uri   = URI.parse("https://api.github.com/repos/#{@user}/#{@repo}/issues?access_token=#{@token}")
+  end
+
+  def add(title)
+    res = nil
+    req = Net::HTTP::Post.new(@uri.request_uri, initheader = { 'Content-Type' => 'application/json' })
+    req.body = { title: "#{title}" }.tap {|hash| break JSON.generate(hash) }
+
+    http = Net::HTTP.new(@uri.host, @uri.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    # http.set_debug_output $stderr
+
+    http.start do |h|
+      res = h.request(req)
+    end
+
+    puts JSON.parse(res.body)['html_url']
+  end
+
+  def list
+    res = open(@uri)
+    rtn = JSON.parse(res.read).map {|ele| ["#{ele['title']}\t#{Time.parse(ele['updated_at']).getlocal.strftime('%Y-%m-%d_%H:%M')}" ] }
+    rtn.size != 0 ? puts(rtn) : puts('No issue')
+  end
+end
+
+
+if __FILE__ == $PROGRAM_NAME
+  $me = File.basename(__FILE__)
+
+  def error(msg)
+    STDERR.puts "#{$me}: #{msg}"
+    exit 1
+  end
+
+  unless ENV['GITHUB_API_TOKEN']
+    error "pleses set enviroment variable 'GITHUB_API_TOKEN'"
+  end
+
+  repository = ARGV.find_index {|item| item =~ /-r.*/ }.tap do |i|
+    if i and ARGV[i.next]
+      break ARGV.slice!(i, 2)[1]
+    elsif i and ARGV[i.next].nil?
+      error 'require argument'
+    else
+      break '844196/todo'
+    end
+  end
+
+  user, repo = repository.split('/')
+  issue = Issues.new(user, repo)
+
+  case ARGV[0]
+  when 'add'
+    ARGV[1] ? issue.add(ARGV[1]) : error('require argument')
+  when 'list'
+    issue.list
+  when /-v.*/
+    puts "#{$me} alpha"
+    exit 0
+  when /-h.*/
+    puts <<-"EOL"
+Usage: #{$me} [--version] [--help] [--repository <USER/REPO>] <command> [<args>]
+  Subcommands
+      add [TILE]                     Add issue and print issue URL.
+      list                           Print open issues list.
+
+  Options
+      --repository [USER/REPO]       Specifie repository. (default:844196/todo)
+      --version                      Print version and exit.
+      --help                         Print this help and exit.
+    EOL
+    exit 0
+  else
+    error 'invalid option'
+  end
+end
