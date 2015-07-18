@@ -88,3 +88,17 @@ Date                     Tag     URL
 $ release 844196 dotfiles
 release: No releases
 ```
+
+## issue
+Issue見れるやつ
+
+```shellsession
+$ issue --repository vill-osamu/issues list | column -ts $'\t'
+tsune_hの構造物の損壊について                2015-06-02_22:08
+ranfoおよびharlot関連の構造物の損壊について  2015-05-21_23:25
+あたらしい村民の募集                         2015-06-02_22:13
+「村」ってなんだよ                           2015-05-08_00:23
+
+$ issue add issueのりーどーみーをかく
+https://github.com/844196/todo/issues/2
+```
