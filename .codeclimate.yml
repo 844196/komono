@@ -1,4 +1,5 @@
 languages:
   Ruby: true
-rubocop:
-  enabled: true
+engines:
+  rubocop:
+    enabled: true
