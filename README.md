@@ -1,5 +1,6 @@
 # komono
 [![Code Climate](https://codeclimate.com/github/844196/komono/badges/gpa.svg)](https://codeclimate.com/github/844196/komono)
+
 小物です
 
 ## BSoD

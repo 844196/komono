@@ -49,7 +49,7 @@ begin
   print "\e[0m"
 
   system('tput cup 0 0')
-  sleep 10000000
+  sleep 100000
 rescue Interrupt
   system('tput cnorm')
   exit 1
