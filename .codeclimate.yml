@@ -1,2 +1,4 @@
 languages:
   Ruby: true
+rubocop:
+  enabled: true
