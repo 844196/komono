@@ -102,3 +102,17 @@ ranfoおよびharlot関連の構造物の損壊について  2015-05-21_23:25
 $ issue add issueのりーどーみーをかく
 https://github.com/844196/todo/issues/2
 ```
+
+## doseisan
+えƕ Շ˝ぃƕㄑ˝まՇ˝ふれʓな
+
+```shellsession
+$ renge | doseisan
+ƺこにうㄜ₹˝ㄜƕ が近⊃ ˝ƖıՇ₹たʖˋⱠろこιよﾚ）好物๑人参Շ˝釣ʓ๑Շ˝
+
+$ renge | doseisan
+ウチ お雑煮食ㄟ˝たƖıƕ ！！
+
+$ renge | doseisan
+おι˝ゃまιますーƕ
+```
