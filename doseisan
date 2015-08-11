@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+class Dosei
+  def self.convert_doseisan_lang(string)
+    before_dosei_char = ['い', 'き', 'く', 'さ', 'し', 'せ', 'そ', 'ち', 'つ', 'て', 'の', 'ひ', 'へ', 'み', 'も', 'や', 'ら', 'り', 'る', 'ん', 'ぎ', 'ぐ', 'ざ', 'じ', 'ぜ', 'ぞ', 'ぢ', 'づ', 'で', 'ば', 'び', 'べ']
+    after_dosei_char = ['Ɩı', '₹', 'ㄑ', 'ㄜ', 'ι', 'ㄝ', 'ƺ', 'ㄘ', '⊃ ', 'Շ', '๑', 'Ʊ', 'ㄟ', 'Ⴋ', 'Ⱡ', '兯', 'ʖˋ', 'ﾚ）', 'ʓ', 'ƕ ', '₹˝', 'ㄑ˝', 'ㄜ˝', 'ι˝', 'ㄝ˝', 'ƺ˝', 'ㄘ˝', '⊃ ˝', 'Շ˝', '∣ժ̅˝', 'Ʊ˝', 'ㄟ˝']
+
+    string.each_char.map {|c|
+      r = c.gsub(/./, Hash[*before_dosei_char.zip(after_dosei_char).flatten])
+      r.empty? ? c : r
+    }.join
+  end
+end
+
+if __FILE__ == $PROGRAM_NAME
+  require 'optparse'
+
+  opt = ARGV.getopts('', 'help')
+  if opt['help']
+    puts "Usage: #{File.basename(__FILE__)} [File]..."
+    exit
+  end
+
+  ARGF.read.split("\n").each {|line| puts Dosei.convert_doseisan_lang(line) }
+end
